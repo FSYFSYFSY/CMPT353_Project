@@ -1,12 +1,12 @@
 import pandas as pd
 import sys
 
-#python data_lprocess.py Walk1.csv walk
+#python data_process.py Walk1.csv walk
 
 file_name = sys.argv[1]
 label_name = sys.argv[2]
 
-data = pd.read_csv(f"Data/{file_name}")
+data = pd.read_csv("Data/{}".format(file_name))
 start_time = pd.to_datetime(data['time'].iloc[0])
 
 data['time'] = pd.to_datetime(data['time'])
@@ -25,5 +25,5 @@ new_data[['time','ax','ay','az']] = new_data[['time','ax','ay','az']].round(3)
 
 
 #print(new_data)
-new_data.to_csv(f"Data/{file_name}", index = False)
+new_data.to_csv("Data/{}".format(file_name), index = False)
 
