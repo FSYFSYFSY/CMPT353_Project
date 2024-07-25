@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.linear_model import LinearRegression
 from pykalman import KalmanFilter
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
@@ -32,9 +33,18 @@ def kalmanSmooth(coef, data, outfile):
 
     kalman_smoothed, _ = kf.smooth(X_valid)
 
+    # Fit a linear regression line to the Kalman smoothed data
+    time = data['time'].values.reshape(-1, 1)
+    kalman_values = kalman_smoothed[:, 0]
+
+    regression_model = LinearRegression()
+    regression_model.fit(time, kalman_values)
+    regression_line = regression_model.predict(time)
+
     plt.figure(figsize=(15, 6))
     plt.plot(data['time'], data['speed'], 'b.', alpha=0.5, label='Observed speed')
-    plt.plot(data['time'], kalman_smoothed[:, 0], 'g-', label='Kalman smoothed speed')
+    plt.plot(data['time'], kalman_smoothed[:, 0], 'g.', label='Kalman smoothed speed')  # Use scatter for Kalman points
+    plt.plot(data['time'], regression_line, 'r-', label='Linear regression line')
     plt.xlabel('Time')
     plt.ylabel('Speed')
     plt.legend()
@@ -53,7 +63,7 @@ def plot_errors(model, X_valid, y_valid):
     plt.show()
 
 # Ready columns
-X_columns = ['speed']
+X_columns = ['ax','ay','az','speed']
 y_column = 'next_speed'
 
 # Read file and make new column
