@@ -7,6 +7,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import LinearRegression
 from pykalman import KalmanFilter
 from sklearn.metrics import mean_absolute_error, mean_squared_error
+from scipy.fft import fft, ifft
 
 ### Kalman Filtering
 def kalmanSmooth(coef, data, outfile):
