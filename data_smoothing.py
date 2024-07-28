@@ -15,6 +15,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from pykalman import KalmanFilter
+from scipy.fft import fft, ifft
 
 #Smooth User speed over time for entire list of dataframe
 import statsmodels.api as sm
@@ -127,3 +128,28 @@ def output_kalman(df, label):
     coefficients = model.predict(X_train[:1]).reshape(-1)
     output_file = os.path.join(output_dir, f'{label}_smoothed.csv')
     kalmanSmooth(coefficients, df, X_columns, y_column, output_file)
+
+def fft_denoise(signal, threshold):
+    signal_fft = fft(signal, axis=0)
+    freqs = np.fft.fftfreq(len(signal))
+    signal_fft[np.abs(freqs) > threshold] = 0
+    cleaned_signal = ifft(signal_fft)
+    return cleaned_signal.real
+
+def apply_fft_denoise(df, label):
+    output_dir = 'fft_denoised'
+    
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    df['time'] = pd.to_datetime(df['time'])
+    df['speed'] = fft_denoise(df['speed'].values, threshold=0.2)
+    df['ax'] = fft_denoise(df['az'].values, threshold=0.2)
+    df['ay'] = fft_denoise(df['ay'].values, threshold=0.2)
+    df['az'] = fft_denoise(df['az'].values, threshold=0.2)
+
+    # Generate the output file name
+    output_file = os.path.join(output_dir, f'{label}_denoised.csv')
+
+    # Save the denoised data to CSV files
+    df[['time', 'ax', 'ay', 'az', 'speed']].to_csv(output_file, index=False)
