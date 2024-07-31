@@ -1,6 +1,7 @@
-Required Libaries:
+**Required Libaries:**
 
-import numpy as np \n /n
+```
+import numpy as np
 import pandas as pd
 import os
 import scipy.stats as stats
@@ -20,4 +21,6 @@ from scipy.fft import fft, ifft
 
 #This is the data smoothing file used
 from data_smoothing import output_kalman, kalmanSmooth, lowess_smooth, fft_denoise, apply_fft_denoise
+```
+
 
