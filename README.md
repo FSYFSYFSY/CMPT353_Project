@@ -23,4 +23,15 @@ from scipy.fft import fft, ifft
 from data_smoothing import output_kalman, kalmanSmooth, lowess_smooth, fft_denoise, apply_fft_denoise
 ```
 
+**Command used**
+
+The data in the Data folder is already processed but not yet cleaned, the command used for processing is python3 data_process.py file_name label_name(The motion category for the data). The rest of code is in the program.ipynb, and no more commands are used.
+
+**Order of Execution**
+
+Starting fresh, the order of execution would be to first process the data with data_process.py and the revelant command. Then the rest is in the program.ipynb, starting from loading the process data. Plotting the data and then smoothing the data with different algorithms, and then using different machine learning models to predict the user motion.
+
+**File Produced**
+
+FOr the data smoothing part, the code will read in the directory of Data folder, and output smoothed data files by different smoothing algorithms to different folders. The folders will need to be created before hand. 
 
