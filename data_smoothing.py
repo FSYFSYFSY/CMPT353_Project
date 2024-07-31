@@ -28,10 +28,15 @@ def lowess_smooth(df, label):
     df['time'] = pd.to_datetime(df['time'])
 
     # Read and smooth processed data
-    smoothed = sm.nonparametric.lowess(df['speed'], df['time'], frac=0.085)
+    smoothed_speed = sm.nonparametric.lowess(df['speed'], df['time'], frac=0.085)
+    smoothed_ax = sm.nonparametric.lowess(df['speed'], df['time'], frac=0.085)
+    smoothed_ay = sm.nonparametric.lowess(df['speed'], df['time'], frac=0.085)
+    smoothed_az = sm.nonparametric.lowess(df['speed'], df['time'], frac=0.085)
 
     # Create DataFrame with smoothed data
-    smoothed_df = pd.DataFrame({'time': df['time'], 'speed': smoothed[:, 1]})
+    smoothed_df = pd.DataFrame({'time': df['time'], 'ax': smoothed_ax[:, 1],
+                                'ay': smoothed_ay[:, 1], 'az': smoothed_az[:, 1],
+                                'speed': smoothed_speed[:, 1]})
 
     # Generate the output file name
     output_file = os.path.join(output_dir, f'{label}_smoothed.csv')
@@ -95,7 +100,10 @@ def kalmanSmooth(coef, data, X_columns, y_column, output_file):
     # Create DataFrame with smoothed data
     smoothed_df = pd.DataFrame({
         'time': data['time'],
-        'speed': kalman_smoothed[:, 0],
+        'ax': kalman_smoothed[:, 0],
+        'ay': kalman_smoothed[:, 1],
+        'az': kalman_smoothed[:, 2],
+        'speed': kalman_smoothed[:, 3],
     })
 
     # Save the smoothed data
