@@ -20,12 +20,14 @@ from pykalman import KalmanFilter
 from scipy.fft import fft, ifft
 
 #This is the data smoothing file used
-from data_smoothing import output_kalman, kalmanSmooth, lowess_smooth, fft_denoise, apply_fft_denoise
+from data smoothing import output_kalman, kalmanSmooth, lowess_smooth, fft_denoise, apply_fft_denoise
 ```
 
 **Command used**
 
 The data in the Data folder is already processed but not yet cleaned, the command used for processing is python3 data_process.py file_name label_name(The motion category for the data). The rest of code is in the program.ipynb, and no more commands are used.
+
+Data clean doesn't implement in default, it has been commented.
 
 **Order of Execution**
 
