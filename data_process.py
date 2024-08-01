@@ -6,7 +6,7 @@ import sys
 file_name = sys.argv[1]
 label_name = sys.argv[2]
 
-data = pd.read_csv("original_data/{}".format(file_name))
+data = pd.read_csv("raw_data/{}".format(file_name))
 start_time = pd.to_datetime(data['time'].iloc[0])
 
 data['time'] = pd.to_datetime(data['time'])
