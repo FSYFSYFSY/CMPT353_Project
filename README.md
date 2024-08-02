@@ -25,7 +25,7 @@ from data smoothing import output_kalman, kalmanSmooth, lowess_smooth, fft_denoi
 
 **Command used**
 
-The data in the Data folder is already processed but not yet cleaned, the command used for processing is python3 data_process.py file_name label_name(The motion category for the data). The rest of code is in the program.ipynb, and no more commands are used.
+The data in the original_data folder is already processed but not yet cleaned, the command used for processing is python3 data_process.py file_name label_name(The motion category for the data). The rest of code is in the program.ipynb, and no more commands are used.
 
 Data clean doesn't implement in default, it has been commented.
 
@@ -35,5 +35,5 @@ Starting fresh, the order of execution would be to first process the data with d
 
 **File Produced**
 
-FOr the data smoothing part, the code will read in the directory of Data folder, and output smoothed data files by different smoothing algorithms to different folders. The folders will need to be created before hand. 
+FOr the data smoothing part, the code will read in the directory of Data folder, and output smoothed data files by different smoothing algorithms to different folders. Code should make the folders if not already present.
 
