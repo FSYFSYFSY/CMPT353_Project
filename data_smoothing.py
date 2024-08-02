@@ -43,7 +43,7 @@ def lowess_smooth(df, label, file_name):
         'label': label})
 
     # Generate the output file name
-    output_file = os.path.join(output_dir, f'{file_name}_smoothed.csv')
+    output_file = os.path.join(output_dir, f'{file_name}.csv')
 
     # Save the smoothed data to CSV files
     smoothed_df.to_csv(output_file, index=False)
@@ -141,7 +141,7 @@ def output_kalman(df, label, filename):
     print(f"Validation score: {model.score(X_valid, y_valid)}")
 
     coefficients = model.predict(X_train[:1]).reshape(-1)
-    output_file = os.path.join(output_dir, f'{filename}_smoothed.csv')
+    output_file = os.path.join(output_dir, f'{filename}.csv')
     kalmanSmooth(coefficients, df, X_columns, y_column, output_file)
 
 #FFT denoise function
@@ -165,7 +165,7 @@ def apply_fft_denoise(df, label, filename):
     df['label'] = label
 
     # Generate the output file name
-    output_file = os.path.join(output_dir, f'{filename}_denoised.csv')
+    output_file = os.path.join(output_dir, f'{filename}.csv')
 
     # Save the denoised data to CSV files
     df[['time', 'ax', 'ay', 'az', 'speed','label']].to_csv(output_file, index=False)
