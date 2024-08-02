@@ -21,8 +21,11 @@ from scipy.fft import fft, ifft
 import statsmodels.api as sm
 lowess = sm.nonparametric.lowess
 
-def lowess_smooth(df, label):
+def lowess_smooth(df, label, file_name):
+    #Get output directory
     output_dir = 'lowess_smoothed'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     
     # Convert 'time' column to datetime
     df['time'] = pd.to_datetime(df['time'])
@@ -33,13 +36,20 @@ def lowess_smooth(df, label):
     smoothed_ay = sm.nonparametric.lowess(df['speed'], df['time'], frac=0.085)
     smoothed_az = sm.nonparametric.lowess(df['speed'], df['time'], frac=0.085)
 
+    # Convert 'time' column back to float for training
+    df['time'] = df['time'].astype(np.int64) / 1e9
+
     # Create DataFrame with smoothed data
-    smoothed_df = pd.DataFrame({'time': df['time'], 'ax': smoothed_ax[:, 1],
-                                'ay': smoothed_ay[:, 1], 'az': smoothed_az[:, 1],
-                                'speed': smoothed_speed[:, 1]})
+    smoothed_df = pd.DataFrame({
+        'time': df['time'], 
+        'ax': np.round(smoothed_ax[:, 1], 3),
+        'ay': np.round(smoothed_ay[:, 1], 3), 
+        'az': np.round(smoothed_az[:, 1], 3),
+        'speed': np.round(smoothed_speed[:, 1], 3), 
+        'label': label})
 
     # Generate the output file name
-    output_file = os.path.join(output_dir, f'{label}_smoothed.csv')
+    output_file = os.path.join(output_dir, f'{file_name}_smoothed.csv')
 
     # Save the smoothed data to CSV files
     smoothed_df.to_csv(output_file, index=False)
@@ -100,18 +110,25 @@ def kalmanSmooth(coef, data, X_columns, y_column, output_file):
     # Create DataFrame with smoothed data
     smoothed_df = pd.DataFrame({
         'time': data['time'],
-        'ax': kalman_smoothed[:, 0],
-        'ay': kalman_smoothed[:, 1],
-        'az': kalman_smoothed[:, 2],
-        'speed': kalman_smoothed[:, 3],
+        'ax': np.round(kalman_smoothed[:, 0], 3),
+        'ay': np.round(kalman_smoothed[:, 1], 3),
+        'az': np.round(kalman_smoothed[:, 2], 3),
+        'speed': np.round(kalman_smoothed[:, 3], 3),
+        'label': data['label']
     })
+
+    # Convert 'time' column back to float for training
+    smoothed_df['time'] = smoothed_df['time'].astype(np.int64) / 1e9
 
     # Save the smoothed data
     smoothed_df.to_csv(output_file, index=False)
 
 
-def output_kalman(df, label):
+def output_kalman(df, label, filename):
+    #Get output directory
     output_dir = 'kalman_smoothed'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     X_columns = ['ax', 'ay', 'az', 'speed']
     y_column = 'next_speed'
@@ -134,9 +151,10 @@ def output_kalman(df, label):
     print(f"Validation score: {model.score(X_valid, y_valid)}")
 
     coefficients = model.predict(X_train[:1]).reshape(-1)
-    output_file = os.path.join(output_dir, f'{label}_smoothed.csv')
+    output_file = os.path.join(output_dir, f'{filename}_smoothed.csv')
     kalmanSmooth(coefficients, df, X_columns, y_column, output_file)
 
+#FFT denoise function
 def fft_denoise(signal, threshold):
     signal_fft = fft(signal, axis=0)
     freqs = np.fft.fftfreq(len(signal))
@@ -144,20 +162,24 @@ def fft_denoise(signal, threshold):
     cleaned_signal = ifft(signal_fft)
     return cleaned_signal.real
 
-def apply_fft_denoise(df, label):
+def apply_fft_denoise(df, label, filename):
+    #Get output directory
     output_dir = 'fft_denoised'
-    
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
     df['time'] = pd.to_datetime(df['time'])
-    df['speed'] = fft_denoise(df['speed'].values, threshold=0.2)
-    df['ax'] = fft_denoise(df['az'].values, threshold=0.2)
-    df['ay'] = fft_denoise(df['ay'].values, threshold=0.2)
-    df['az'] = fft_denoise(df['az'].values, threshold=0.2)
+    df['speed'] = np.round(fft_denoise(df['speed'].values, threshold=0.2), 3)
+    df['ax'] = np.round(fft_denoise(df['ax'].values, threshold=0.2), 3)
+    df['ay'] = np.round(fft_denoise(df['ay'].values, threshold=0.2), 3)
+    df['az'] = np.round(fft_denoise(df['az'].values, threshold=0.2), 3)
+    df['label'] = label
 
     # Generate the output file name
-    output_file = os.path.join(output_dir, f'{label}_denoised.csv')
+    output_file = os.path.join(output_dir, f'{filename}_denoised.csv')
+
+    # Convert 'time' column back to float for training
+    df['time'] = df['time'].astype(np.int64) / 1e9
 
     # Save the denoised data to CSV files
-    df[['time', 'ax', 'ay', 'az', 'speed']].to_csv(output_file, index=False)
+    df[['time', 'ax', 'ay', 'az', 'speed','label']].to_csv(output_file, index=False)
