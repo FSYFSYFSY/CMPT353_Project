@@ -26,18 +26,12 @@ def lowess_smooth(df, label, file_name):
     output_dir = 'lowess_smoothed'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    
-    # Convert 'time' column to datetime
-    df['time'] = pd.to_datetime(df['time'])
 
     # Read and smooth processed data
     smoothed_speed = sm.nonparametric.lowess(df['speed'], df['time'], frac=0.085)
-    smoothed_ax = sm.nonparametric.lowess(df['speed'], df['time'], frac=0.085)
-    smoothed_ay = sm.nonparametric.lowess(df['speed'], df['time'], frac=0.085)
-    smoothed_az = sm.nonparametric.lowess(df['speed'], df['time'], frac=0.085)
-
-    # Convert 'time' column back to float for training
-    df['time'] = df['time'].astype(np.int64) / 1e9
+    smoothed_ax = sm.nonparametric.lowess(df['ax'], df['time'], frac=0.085)
+    smoothed_ay = sm.nonparametric.lowess(df['ay'], df['time'], frac=0.085)
+    smoothed_az = sm.nonparametric.lowess(df['az'], df['time'], frac=0.085)
 
     # Create DataFrame with smoothed data
     smoothed_df = pd.DataFrame({
@@ -117,9 +111,6 @@ def kalmanSmooth(coef, data, X_columns, y_column, output_file):
         'label': data['label']
     })
 
-    # Convert 'time' column back to float for training
-    smoothed_df['time'] = smoothed_df['time'].astype(np.int64) / 1e9
-
     # Save the smoothed data
     smoothed_df.to_csv(output_file, index=False)
 
@@ -135,7 +126,6 @@ def output_kalman(df, label, filename):
 
     # Read file and make new column
     df[y_column] = df['speed'].shift(-1)
-    df['time'] = pd.to_datetime(df['time'])
     df = df.dropna()
 
     # Split data into train and valid sets
@@ -168,7 +158,6 @@ def apply_fft_denoise(df, label, filename):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    df['time'] = pd.to_datetime(df['time'])
     df['speed'] = np.round(fft_denoise(df['speed'].values, threshold=0.2), 3)
     df['ax'] = np.round(fft_denoise(df['ax'].values, threshold=0.2), 3)
     df['ay'] = np.round(fft_denoise(df['ay'].values, threshold=0.2), 3)
@@ -177,9 +166,6 @@ def apply_fft_denoise(df, label, filename):
 
     # Generate the output file name
     output_file = os.path.join(output_dir, f'{filename}_denoised.csv')
-
-    # Convert 'time' column back to float for training
-    df['time'] = df['time'].astype(np.int64) / 1e9
 
     # Save the denoised data to CSV files
     df[['time', 'ax', 'ay', 'az', 'speed','label']].to_csv(output_file, index=False)
